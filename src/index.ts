@@ -5,13 +5,7 @@ import { db } from "./db";
 const app = new Hono();
 
 app.get("/", (c) => {
-  return c.html(`
-    <html>
-      <body>
-        <h1>Printshield Server Running</h1>
-      </body>
-    </html>
-  `);
+  return c.text("PrintShield Server Running");
 });
 
 const bodySchema = z.object({

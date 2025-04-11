@@ -2,7 +2,7 @@
   "name": "printshield-server",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "build": "bun build src/index.ts --outfile dist/index.js",
+    "build": "bun build src/index.ts --outfile dist/index.js --target node",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
