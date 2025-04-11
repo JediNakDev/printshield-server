@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
-
+import { errorTable } from "./db/schema";
+import { db } from "./db";
 const app = new Hono();
 
 app.get("/", (c) => {
@@ -32,14 +33,18 @@ app.post("/camera", async (c) => {
   if (!data.isError) {
     return c.json({ success, data });
   }
+
   const text = `${data.printerId} is having a printing error (From Printshield Camera)`;
   const url = `https://api.telegram.org/bot7699799142:AAFOwjQTbBUMvJbLe5MC5iYXEdltdqgl0Gc/sendMessage?chat_id=-1002584756620&text=${text}`;
-  const response = await fetch(url);
-  const telegramData = await response.json();
+  await fetch(url);
+  await db.insert(errorTable).values({
+    printerId: data.printerId,
+    type: "camera",
+    isError: data.isError,
+  });
   return c.json({
     success,
     data,
-    telegramData,
   });
 });
 
@@ -59,12 +64,15 @@ app.post("/filament", async (c) => {
   }
   const text = `${data.printerId} has low filament (From Printshield Filament Sensor)`;
   const url = `https://api.telegram.org/bot7699799142:AAFOwjQTbBUMvJbLe5MC5iYXEdltdqgl0Gc/sendMessage?chat_id=-1002584756620&text=${text}`;
-  const response = await fetch(url);
-  const telegramData = await response.json();
+  await fetch(url);
+  await db.insert(errorTable).values({
+    printerId: data.printerId,
+    type: "filament",
+    isError: data.isError,
+  });
   return c.json({
     success,
     data,
-    telegramData,
   });
 });
 
