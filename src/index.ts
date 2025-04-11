@@ -4,7 +4,13 @@ import { z } from "zod";
 const app = new Hono();
 
 app.get("/", (c) => {
-  return c.text("Printshield Server Running");
+  return c.html(`
+    <html>
+      <body>
+        <h1>Printshield Server Running</h1>
+      </body>
+    </html>
+  `);
 });
 
 const bodySchema = z.object({
