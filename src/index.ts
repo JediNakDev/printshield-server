@@ -1,8 +1,10 @@
 import { Hono } from "hono";
+import { handle } from "hono/vercel";
 import { z } from "zod";
 import { errorTable } from "./db/schema";
 import { db } from "./db";
-const app = new Hono();
+
+const app = new Hono().basePath("/api");
 
 app.get("/", (c) => {
   return c.text("PrintShield Server Running");
@@ -70,4 +72,10 @@ app.post("/filament", async (c) => {
   });
 });
 
-export default app;
+const handler = handle(app);
+
+export const GET = handler;
+export const POST = handler;
+export const PATCH = handler;
+export const PUT = handler;
+export const OPTIONS = handler;

@@ -1,7 +1,8 @@
 {
   "name": "printshield-server",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "start": "vercel dev",
+    "deploy": "vercel",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
@@ -10,6 +11,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "vercel": "^41.6.0"
   }
 }
