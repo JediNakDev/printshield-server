@@ -30,7 +30,7 @@ app.post("/camera", async (c) => {
     return c.json({ success, data });
   }
 
-  const text = `${data.printerId} is having a printing error (From Printshield Camera)`;
+  const text = `Printer ${data.printerId} is having a printing error (From Printshield Camera)`;
   const url = `https://api.telegram.org/bot7699799142:AAFOwjQTbBUMvJbLe5MC5iYXEdltdqgl0Gc/sendMessage?chat_id=-1002584756620&text=${text}`;
   await fetch(url);
   await db.insert(errorTable).values({
@@ -58,7 +58,7 @@ app.post("/filament", async (c) => {
   if (!data.isError) {
     return c.json({ success, data });
   }
-  const text = `${data.printerId} has low filament (From Printshield Filament Sensor)`;
+  const text = `Printer ${data.printerId} has low filament (From Printshield Filament Sensor)`;
   const url = `https://api.telegram.org/bot7699799142:AAFOwjQTbBUMvJbLe5MC5iYXEdltdqgl0Gc/sendMessage?chat_id=-1002584756620&text=${text}`;
   await fetch(url);
   await db.insert(errorTable).values({
