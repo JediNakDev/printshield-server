@@ -3,7 +3,7 @@ import { handle } from "hono/vercel";
 import { z } from "zod";
 import { errorTable } from "./db/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 const app = new Hono().basePath("/api");
 
 app.get("/", (c) => {
@@ -82,19 +82,28 @@ app.get("/error", async (c) => {
   const { printerId: printerIdString } = c.req.query();
   const printerId = parseInt(printerIdString);
 
-  const errors = await db
+  const cameraErrors = await db
     .select()
     .from(errorTable)
-    .where(eq(errorTable.printerId, printerId))
+    .where(and(eq(errorTable.printerId, printerId), eq(errorTable.type, "camera")))
     .orderBy(desc(errorTable.createdAt))
     .limit(1);
 
-  const lastError = errors[0];
+  const filamentErrors = await db
+    .select()
+    .from(errorTable)
+    .where(and(eq(errorTable.printerId, printerId), eq(errorTable.type, "filament")))
+    .orderBy(desc(errorTable.createdAt))
+    .limit(1);
+
+  const lastCameraError = cameraErrors[0];
+  const lastFilamentError = filamentErrors[0];
   const now = new Date();
   const oneMinuteAgo = new Date(now.getTime() - 60 * 1000); // 1 minute ago
 
   return c.json({
-    isError: lastError && lastError.createdAt > oneMinuteAgo,
+    isCameraError: lastCameraError && lastCameraError.createdAt > oneMinuteAgo,
+    isFilamentError: lastFilamentError && lastFilamentError.createdAt > oneMinuteAgo,
   });
 });
 
