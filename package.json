@@ -1,6 +1,7 @@
 {
   "name": "printshield-server",
   "scripts": {
+    "dev": "bun run --hot api/index.ts",
     "start": "vercel dev",
     "deploy": "vercel",
     "db:push": "drizzle-kit push",

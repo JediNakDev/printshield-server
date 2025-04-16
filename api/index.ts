@@ -3,21 +3,27 @@ import { handle } from "hono/vercel";
 import { z } from "zod";
 import { errorTable } from "./db/schema";
 import { db } from "./db";
-
+import { eq, desc } from "drizzle-orm";
 const app = new Hono().basePath("/api");
 
 app.get("/", (c) => {
   return c.text("PrintShield Server Running");
 });
 
-const bodySchema = z.object({
+const cameraBodySchema = z.object({
   printerId: z.number(),
   isError: z.boolean(),
 });
 
+const filamentBodySchema = z.object({
+  printerId: z.number(),
+  isError: z.boolean(),
+  filamentId: z.number(),
+});
+
 app.post("/camera", async (c) => {
   const body = await c.req.json();
-  const { success, data, error } = bodySchema.safeParse(body);
+  const { success, data, error } = cameraBodySchema.safeParse(body);
   if (!success) {
     return c.json({
       success,
@@ -46,7 +52,7 @@ app.post("/camera", async (c) => {
 
 app.post("/filament", async (c) => {
   const body = await c.req.json();
-  const { success, data, error } = bodySchema.safeParse(body);
+  const { success, data, error } = filamentBodySchema.safeParse(body);
   if (!success) {
     return c.json({
       success,
@@ -58,7 +64,7 @@ app.post("/filament", async (c) => {
   if (!data.isError) {
     return c.json({ success, data });
   }
-  const text = `Printer ${data.printerId} has low filament (From Printshield Filament Sensor)`;
+  const text = `Printer ${data.printerId}, filament ${data.filamentId} has low filament (From Printshield Filament Sensor)`;
   const url = `https://api.telegram.org/bot7699799142:AAFOwjQTbBUMvJbLe5MC5iYXEdltdqgl0Gc/sendMessage?chat_id=-1002584756620&text=${text}`;
   await fetch(url);
   await db.insert(errorTable).values({
@@ -69,6 +75,26 @@ app.post("/filament", async (c) => {
   return c.json({
     success,
     data,
+  });
+});
+
+app.get("/error", async (c) => {
+  const { printerId: printerIdString } = c.req.query();
+  const printerId = parseInt(printerIdString);
+
+  const errors = await db
+    .select()
+    .from(errorTable)
+    .where(eq(errorTable.printerId, printerId))
+    .orderBy(desc(errorTable.createdAt))
+    .limit(1);
+
+  const lastError = errors[0];
+  const now = new Date();
+  const oneMinuteAgo = new Date(now.getTime() - 60 * 1000); // 1 minute ago
+
+  return c.json({
+    isError: lastError && lastError.createdAt > oneMinuteAgo,
   });
 });
 
