@@ -12775,13 +12775,7 @@ var db3 = drizzle(conn, { schema: exports_schema });
 // src/index.ts
 var app = new Hono2;
 app.get("/", (c) => {
-  return c.html(`
-    <html>
-      <body>
-        <h1>Printshield Server Running</h1>
-      </body>
-    </html>
-  `);
+  return c.text("PrintShield Server Running");
 });
 var bodySchema = z.object({
   printerId: z.number(),
@@ -12840,6 +12834,10 @@ app.post("/filament", async (c) => {
   });
 });
 var src_default2 = app;
+var GET = app.fetch;
+var POST = app.fetch;
 export {
-  src_default2 as default
+  src_default2 as default,
+  POST,
+  GET
 };
