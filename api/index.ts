@@ -99,7 +99,7 @@ app.get("/error", async (c) => {
   const lastCameraError = cameraErrors[0];
   const lastFilamentError = filamentErrors[0];
   const now = new Date();
-  const oneMinuteAgo = new Date(now.getTime() - 60 * 1000); // 1 minute ago
+  const oneMinuteAgo = new Date(now.getTime() - 3 * 1000); // 1 minute ago
 
   return c.json({
     isCameraError: lastCameraError && lastCameraError.createdAt > oneMinuteAgo,
